@@ -1,7 +1,7 @@
 import express from 'express';
 import axios from 'axios';
 import pg from 'pg';
-
+import cors from 'cors';  // Import the CORS package
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,13 +16,7 @@ const client = new pg.Client({
 
 client.connect();
 
-/*client.query('SELECT NOW()', (err, res) => {
-    if (err) {
-        console.error('Error while connecting to database:', err);
-    } else {
-        console.log('Connection to database successful:', res.rows[0]);
-    }
-});*/
+app.use(cors());
 
 const fetchISSPosition = async () => {
     try {
@@ -37,15 +31,21 @@ const fetchISSPosition = async () => {
 
         console.log('ISS data saved in database:', latitude, longitude, timestamp);
     } catch (error) {
-        console.error('Error while fecthing ISS position data:', error);
+        console.error('Error while fetching ISS position data:', error);
     }
 };
 
 fetchISSPosition();
 
+
 app.get('/api/iss-position', async (req, res) => {
-    const result = await client.query('SELECT * FROM iss_positions ORDER BY timestamp DESC LIMIT 1');
-    res.json(result.rows[0]);
+    try {
+        const result = await client.query('SELECT * FROM iss_positions ORDER BY timestamp DESC LIMIT 1');
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching the latest ISS position from database:', error);
+        res.status(500).send('Server error');
+    }
 });
 
 app.listen(port, () => {
