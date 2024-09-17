@@ -1,18 +1,22 @@
 import express from 'express';
 import axios from 'axios';
 import pg from 'pg';
-import cors from 'cors';  // Import the CORS package
+import cors from 'cors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 const client = new pg.Client({
-    user: 'postgres',
-    host: "localhost",
-    database: "iss_tracker",
-    password: "BentleyErSød!",
-    port: 5432,
+    user: process.env.PG_USER,
+    host: process.env.PG_HOST,
+    database: process.env.PG_DATABASE,
+    password: process.env.PG_PASSWORD,
+    port: process.env.PG_PORT,
 });
+
 
 client.connect();
 
